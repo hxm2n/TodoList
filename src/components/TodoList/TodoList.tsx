@@ -1,40 +1,22 @@
-import { useState } from 'react';
-import type { Todo } from './types';
 import styled from '@emotion/styled';
+import { useTodos } from '../../hooks/useTodos';
+import { useInput } from '../../hooks/useInput';
 import { TodoItem } from '../TodoItem';
 
 export function TodoList() {
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [newTodoText, setNewTodoText] = useState('');
+  const { todos, addTodo, toggleTodo, deleteTodo } = useTodos();
+
+  const {
+    value: newTodoText,
+    onChange: handleInputChange,
+    setValue: setNewTodoText,
+  } = useInput('');
 
   const handleAddTodo = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (newTodoText.trim() === '') return;
-
-    const newTodo: Todo = {
-      id: Date.now(),
-      text: newTodoText,
-      isCompleted: false,
-    };
-
-    setTodos([...todos, newTodo]);
+    addTodo(newTodoText);
     setNewTodoText('');
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewTodoText(e.target.value);
-  };
-
-  const handleToggleComplete = (id: number) => {
-    setTodos(
-      todos.map((todo) =>
-        todo.id === id ? { ...todo, isCompleted: !todo.isCompleted } : todo
-      )
-    );
-  };
-
-  const handleDeleteTodo = (id: number) => {
-    setTodos(todos.filter((todo) => todo.id !== id));
   };
 
   return (
@@ -54,8 +36,8 @@ export function TodoList() {
           <TodoItem
             key={todo.id}
             todo={todo}
-            onToggle={handleToggleComplete}
-            onDelete={handleDeleteTodo}
+            onToggle={toggleTodo}
+            onDelete={deleteTodo}
           />
         ))}
       </TodoListContainer>
